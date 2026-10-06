@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITO Deal Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+--color-dk1: #005E60;
+--color-lt1: #FFFFFF;
+--color-dk2: #212121;
+--color-lt2: #C8FF08;
+--color-accent1: #004745;
+--color-accent6: #458A8A;
+--color-tint-2: #96BDBD;
+--color-tint-3: #C7DBDB;
+--color-gray-1: #FAFAFA;
+--color-accent2: #E3E3E3;
+--color-accent3: #CCCCCC;
+--color-accent4: #696969;
+--color-accent5: #484848;
+--color-hlink: #2176FF;
+--color-sky: #5FB7FF;
+--color-fol-hlink: #3E9E00;
+--color-forest: #7BDD3C;
+--color-dark-earth: #4A2419;
+--color-earth: #774936;
+--font-heading: "Inter", "Segoe UI", sans-serif;
+--font-body: "Inter", "Segoe UI", sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; font-family: var(--font-body); background-color: var(--color-lt1); color: var(--color-dk2); }
+body { display: flex; flex-direction: column; }
+.app-container { display: flex; flex-direction: column; height: 100vh; background-color: var(--color-lt1); }
+.region-selector { background-color: var(--color-dk1); padding: 12px 24px; display: flex; gap: 12px; align-items: center; border-bottom: 2px solid var(--color-accent1); }
+.region-selector label { color: var(--color-lt1); font-size: 13px; font-weight: 600; margin-right: 8px; }
+.region-btn { padding: 8px 16px; border: 2px solid var(--color-lt1); background-color: transparent; color: var(--color-lt1); font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 4px; transition: all 0.3s ease; }
+.region-btn.active { background-color: var(--color-lt2); border-color: var(--color-lt2); color: var(--color-dk2); }
+.region-btn:hover { opacity: 0.9; }
+.attribution-bar { background-color: #f5f5f5; border-bottom: 1px solid var(--color-accent2); padding: 6px 24px; font-size: 12px; color: var(--color-accent5); display: flex; align-items: center; }
+.tab-navigation { background-color: var(--color-lt1); border-bottom: 2px solid var(--color-accent2); display: flex; gap: 0; }
+.tab-btn { flex: 1; padding: 16px 20px; background-color: var(--color-gray-1); border: none; color: var(--color-dk2); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border-bottom: 3px solid transparent; position: relative; }
+.tab-btn:hover { background-color: var(--color-accent2); }
+.tab-btn.active { background-color: var(--color-lt1); color: var(--color-dk1); border-bottom-color: var(--color-dk1); }
+.tab-content { display: none; flex: 1; overflow-y: auto; padding: 24px; }
+.tab-content.active { display: block; }
+.tab-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 2px solid var(--color-accent2); padding-bottom: 16px; }
+.tab-header h1 { font-size: 24px; font-weight: 700; color: var(--color-dk1); }
+.region-badge { background-color: var(--color-dk1); color: var(--color-lt1); padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.form-field { display: flex; flex-direction: column; }
+.form-field label { font-size: 13px; font-weight: 600; color: var(--color-dk2); margin-bottom: 6px; }
+.form-field input, .form-field select, .form-field textarea { padding: 10px 12px; border: 1px solid var(--color-accent2); border-radius: 4px; font-family: var(--font-body); font-size: 13px; color: var(--color-dk2); background-color: var(--color-lt1); }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: var(--color-dk1); box-shadow: 0 0 0 3px rgba(0, 94, 96, 0.1); }
+.criteria-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; background-color: var(--color-lt1); border: 1px solid var(--color-accent2); border-radius: 4px; overflow: hidden; }
+.criteria-table thead { background-color: var(--color-dk1); color: var(--color-lt1); }
+.criteria-table th { padding: 12px; text-align: left; font-size: 13px; font-weight: 700; border-right: 1px solid var(--color-accent1); }
+.criteria-table th:last-child { border-right: none; }
+.criteria-table td { padding: 12px; border-bottom: 1px solid var(--color-accent2); border-right: 1px solid var(--color-accent2); font-size: 13px; vertical-align: top; }
+.criteria-table td:last-child { border-right: none; }
+.criteria-table tbody tr:last-child td { border-bottom: none; }
+.criteria-table tbody tr:hover { background-color: var(--color-gray-1); }
+.sr-no { font-weight: 600; color: var(--color-dk1); width: 50px; }
+.multiselect-group { max-height: 200px; overflow-y: auto; border: 1px solid var(--color-accent2); border-radius: 4px; padding: 8px; background-color: var(--color-lt1); }
+.multiselect-option { display: flex; align-items: flex-start; gap: 8px; padding: 5px 4px; border-radius: 3px; transition: background-color 0.2s ease; }
+.multiselect-option:hover { background-color: var(--color-gray-1); }
+.multiselect-option input[type="checkbox"] { margin-top: 2px; cursor: pointer; flex-shrink: 0; accent-color: var(--color-dk1); }
+.multiselect-option label { font-size: 12px; color: var(--color-dk2); cursor: pointer; line-height: 1.4; }
+.multiselect-count { display: inline-block; margin-top: 6px; font-size: 11px; font-weight: 600; color: var(--color-dk1); }
+.btn-primary { background-color: var(--color-dk1); color: var(--color-lt1); padding: 12px 24px; border: none; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+.btn-primary:hover { background-color: var(--color-accent1); box-shadow: 0 2px 8px rgba(0, 94, 96, 0.2); }
+.btn-secondary { background-color: var(--color-accent2); color: var(--color-dk2); padding: 10px 16px; border: 1px solid var(--color-accent3); border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+.btn-secondary:hover { background-color: var(--color-accent3); }
+.output-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 24px; }
+.output-card { background-color: var(--color-lt1); border: 1px solid var(--color-accent2); border-radius: 4px; padding: 20px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+.output-card h3 { color: var(--color-dk1); font-size: 16px; font-weight: 700; margin-bottom: 12px; border-bottom: 2px solid var(--color-accent2); padding-bottom: 8px; }
+.output-card p, .output-card li { font-size: 13px; line-height: 1.6; color: var(--color-dk2); margin-bottom: 8px; }
+.output-card ul { margin-left: 20px; }
+.checklist-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+.checklist-item::before { content: "✅"; flex-shrink: 0; }
+.stepper { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+.step { display: flex; gap: 16px; align-items: flex-start; }
+.step-number { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background-color: var(--color-dk1); color: var(--color-lt1); font-weight: 700; font-size: 16px; flex-shrink: 0; }
+.step-number.completed { background-color: var(--color-fol-hlink); }
+.step-content { flex: 1; padding-top: 4px; }
+.step-content h4 { font-size: 14px; font-weight: 700; color: var(--color-dk1); margin-bottom: 4px; }
+.step-content p { font-size: 13px; color: var(--color-dk2); margin: 0; }
+.substep { margin-left: 20px; margin-top: 8px; padding-left: 12px; border-left: 2px solid var(--color-accent2); }
+.substep p { font-size: 12px; margin-bottom: 6px; }
+.tier-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.tier-card { border: 2px solid var(--color-accent2); border-radius: 4px; padding: 16px; text-align: center; transition: all 0.3s ease; }
+.tier-card.active { border-color: var(--color-dk1); background-color: var(--color-gray-1); }
+.tier-card h4 { font-size: 13px; font-weight: 700; color: var(--color-dk1); margin-bottom: 8px; }
+.tier-card p { font-size: 12px; color: var(--color-dk2); }
+.warning-box { background-color: rgba(255, 193, 7, 0.1); border: 2px solid #FFC107; border-radius: 4px; padding: 16px; margin-bottom: 24px; }
+.warning-box h4 { color: #FF9800; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+.warning-box p { font-size: 13px; color: var(--color-dk2); margin: 0; }
+.principles-box { background-color: var(--color-gray-1); border-left: 4px solid var(--color-dk1); border-radius: 4px; padding: 16px; margin-bottom: 24px; }
+.principles-box h4 { color: var(--color-dk1); font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.principles-box ol { margin-left: 20px; }
+.principles-box li { font-size: 13px; color: var(--color-dk2); margin-bottom: 8px; line-height: 1.5; }
+.wizard-question { background-color: var(--color-gray-1); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+.wizard-question h4 { color: var(--color-dk1); font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.wizard-options { display: flex; flex-direction: column; gap: 8px; }
+.wizard-option { display: flex; align-items: center; gap: 8px; }
+.wizard-option input[type="radio"] { cursor: pointer; }
+.wizard-option label { cursor: pointer; font-size: 13px; margin: 0; }
+.result-card { border-radius: 4px; padding: 20px; margin-bottom: 24px; border-left: 4px solid var(--color-dk1); }
+.result-card.brownfield-tks { background-color: rgba(244, 67, 54, 0.05); border-left-color: #F44336; }
+.result-card.brownfield-standard { background-color: rgba(62, 158, 0, 0.05); border-left-color: var(--color-fol-hlink); }
+.result-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+.result-card.brownfield-tks h3 { color: #F44336; }
+.result-card.brownfield-standard h3 { color: var(--color-fol-hlink); }
+.result-card p { font-size: 13px; color: var(--color-dk2); line-height: 1.6; }
+.definition-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 24px; }
+.definition-panel { border-radius: 4px; padding: 16px; border: 2px solid var(--color-accent2); }
+.definition-panel h4 { font-size: 14px; font-weight: 700; border-radius: 4px 4px 0 0; margin: -16px -16px 12px -16px; padding: 12px; }
+.definition-panel.tks h4 { background-color: #F44336; color: var(--color-lt1); }
+.definition-panel.standard h4 { background-color: var(--color-fol-hlink); color: var(--color-lt1); }
+.definition-panel ul { margin-left: 20px; }
+.definition-panel li { font-size: 13px; color: var(--color-dk2); margin-bottom: 8px; line-height: 1.5; }
+.note-box { background-color: var(--color-gray-1); border: 1px solid var(--color-accent2); border-radius: 4px; padding: 16px; font-size: 12px; color: var(--color-dk2); line-height: 1.6; }
+.margin-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; background-color: var(--color-lt1); border: 1px solid var(--color-accent2); border-radius: 4px; overflow: hidden; }
+.margin-table thead { background-color: #1b2a4a; color: var(--color-lt1); }
+.margin-table th { padding: 14px; text-align: left; font-size: 13px; font-weight: 700; border-right: 1px solid rgba(255, 255, 255, 0.2); }
+.margin-table th:last-child { border-right: none; }
+.margin-table td { padding: 12px 14px; border-bottom: 1px solid var(--color-accent2); border-right: 1px solid var(--color-accent2); font-size: 13px; color: var(--color-dk2); }
+.margin-table td:last-child { border-right: none; }
+.margin-table tbody tr:nth-child(even) { background-color: var(--color-gray-1); }
+.margin-table tbody tr:last-child td { border-bottom: none; }
+.margin-table tbody tr:hover { background-color: var(--color-accent2); }
+.footer { background-color: var(--color-dk1); color: var(--color-lt1); padding: 12px 24px; font-size: 11px; text-align: center; border-top: 2px solid var(--color-accent1); margin-top: auto; }
+.footer-refs { margin-top: 6px; font-size: 10px; opacity: 0.9; }
+.hidden { display: none; }
+.tab-btn::after { content: attr(data-tooltip); position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); background-color: var(--color-dk2); color: var(--color-lt1); padding: 8px 12px; border-radius: 4px; font-size: 12px; white-space: nowrap; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; z-index: 1000; pointer-events: none; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); max-width: 250px; white-space: normal; text-align: center; line-height: 1.4; }
+.tab-btn:hover::after { opacity: 1; visibility: visible; }
+.tab-subtitle { font-size: 13px; color: var(--color-accent4); font-style: italic; font-weight: 400; margin-top: 8px; margin-bottom: 16px; line-height: 1.5; }
+@media print {
+@page { size: A4 landscape; margin: 15mm 18mm; }
+html, body { height: auto !important; overflow: visible !important; }
+body * { visibility: hidden !important; }
+#print-slide { visibility: visible !important; }
+#print-slide * { visibility: visible !important; }
+#print-slide {
+position: absolute !important;
+top: 0 !important;
+left: 0 !important;
+width: 100% !important;
+height: auto !important;
+max-height: none !important;
+overflow: visible !important;
+background: white !important;
+padding: 0 !important;
+font-family: 'Inter', sans-serif !important;
+color: #000000 !important;
+z-index: 99999 !important;
+box-sizing: border-box !important;
+}
+#ps-outputs {
+page-break-before: always;
+margin-top: 24px;
+border-top: 1px solid #000;
+padding-top: 16px;
+}
+#print-slide > div[style*="grid-template-columns"] {
+display: block !important;
+}
+#ps-checklist > div,
+#ps-outputs > div {
+break-inside: avoid;
+page-break-inside: avoid;
+}
+}
+@media (max-width: 768px) {
+.input-group { grid-template-columns: 1fr; }
+.output-grid { grid-template-columns: 1fr; }
+.definition-panels { grid-template-columns: 1fr; }
+.tab-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+}
+</style>
+</head>
+<body>
+<div class="app-container">
+<div class="region-selector">
+<label>Active Region:</label>
+<button class="region-btn active" data-region="europe">Europe (ERCIS)</button>
+<button class="region-btn" data-region="ssa">Sub-Saharan Africa (SSA)</button>
+</div>
+<div class="attribution-bar">
+Prepared by Layan Elshihabi &nbsp;|&nbsp; Reviewed by Ceyhun Cecen
+</div>
+<div class="tab-navigation">
+<button class="tab-btn active" data-tab="deal-review" title="Deal Review Smart Mechanism" data-tooltip="Your primary decision engine — input your deal characteristics and instantly generate the full list of required actions, approvals, and workflow triggers for your region." onclick="switchTab('deal-review')">Deal Review</button>
+<button class="tab-btn" data-tab="ehs-ito" title="EHS ITO" data-tooltip="Determine your EHS compliance path based on deal size and country risk — find out exactly which EHS approvals and documentation are required." onclick="switchTab('ehs-ito')">EHS ITO</button>
+<button class="tab-btn" data-tab="brownfield" title="Brownfield" data-tooltip="Quickly determine whether your Brownfield deal requires a PL DD2 Review (TKS) or qualifies as a Standard deal — answered in 3 questions." onclick="switchTab('brownfield')">Brownfield</button>
+<button class="tab-btn" data-tab="saved-library" title="Saved Library" data-tooltip="View, reload, export, or delete previously saved Deal Review checklists stored in your browser." onclick="switchTab('saved-library')">Saved Library</button>
+</div>
+
+<div class="tab-content active" id="deal-review">
+<div class="tab-header">
+<h1>Grid Automation - ITO Deal Review</h1>
+<div class="region-badge" id="region-badge-dr">Europe (ERCIS)</div>
+</div>
+<p class="tab-subtitle">Input your deal characteristics below to generate the full list of required approvals, workflows, and action links for your region. Fields marked with checkboxes support multiple selections.</p>
+<div class="input-group">
+<div class="form-field">
+<label>SPEAK4GE Opportunity Number</label>
+<input type="text" id="speak4ge-opp" placeholder="e.g., OPP-2024-001">
+</div>
+<div class="form-field">
+<label>Opportunity Name</label>
+<input type="text" id="project-name" placeholder="e.g., Grid Automation Opportunity">
+</div>
+<div class="form-field">
+<label>Review Date</label>
+<input type="date" id="review-date">
+</div>
+<div class="form-field">
+<label>Revision</label>
+<input type="text" id="revision" placeholder="e.g., Rev 1.0">
+</div>
+</div>
+<div id="margin-table-container" style="margin-bottom: 24px;"></div>
+<table class="criteria-table">
+<thead>
+<tr>
+<th class="sr-no">Sr. No.</th>
+<th>Opportunity Check</th>
+<th>Selected Criteria</th>
+</tr>
+</thead>
+<tbody id="criteria-tbody"></tbody>
+</table>
+<button class="btn-primary" onclick="generateDealReviewOutputs()">Generate output</button>
+<button class="btn-primary" id="download-summary-btn" onclick="downloadSummary()" style="margin-left: 12px;">Download Summary</button>
+<button class="btn-secondary" id="clear-all-btn" onclick="clearAllSelections()" style="margin-left: 12px;">Clear All Selections</button>
+<button class="btn-primary" id="save-checklist-btn" onclick="saveCurrentChecklist()" style="margin-left: 12px; background-color: var(--color-fol-hlink);">💾 Save Checklist</button>
+<div id="deal-review-outputs" class="output-grid" style="display: none; margin-top: 24px;"></div>
+</div>
+
+<div class="tab-content" id="ehs-ito">
+<div class="tab-header">
+<h1>Grid Auomation - EHS ITO Process</h1>
+<div class="region-badge" id="region-badge-ehs">Europe (ERCIS)</div>
+</div>
+<p class="tab-subtitle">Enter your deal size and country risk level to determine which EHS approvals, documentation, and escalation steps apply to your deal. EHS workflow is mandatory for ALL opportunities involving at least one GE employee, contractor, agent or other person hired on behalf of GE who will be sent to the customer site.</p>
+<div style="background-color: var(--color-tint-3); border-left: 4px solid var(--color-dk1); border-radius: 4px; padding: 16px; margin-bottom: 24px; display: flex; gap: 12px;">
+<div style="font-size: 24px; flex-shrink: 0;">🛡️</div>
+<div>
+<h4 style="color: var(--color-dk1); font-size: 14px; font-weight: 700; margin-bottom: 8px;">What is the EHS ITO Process? (Rev 09)</h4>
+<p style="font-size: 13px; color: var(--color-dk2); line-height: 1.6; margin: 0;">The EHS (Environment, Health & Safety) ITO Process is GE Vernova's framework for identifying, assessing, and mitigating health, safety, and environmental risks during the Inquiry-to-Order (ITO) tendering stage — before a project is awarded. EHS workflow is mandatory for ALL opportunities which involve at least one GE employee, contractor, agent or other person hired on behalf of GE who will be sent to the customer site. Rather than being a separate standalone process, EHS is fully embedded within the SPEAK4GE RAM (Risk Assessment & Management) workflow. The level of EHS scrutiny required escalates based on deal size and country risk level — deals in High or Very High Risk countries require additional documentation, register entries, and approval from senior EHS leaders. All preparations, mitigations, and checklist outputs must be documented in the GA EHS ITO Checklist and uploaded to SPEAK4GE Chatter for record-keeping.</p>
+</div>
+</div>
+<div class="form-field" style="max-width: 300px; margin-bottom: 24px;">
+<label>Deal Estimated Value (USD)</label>
+<input type="number" id="deal-value" placeholder="e.g., 1000000" onchange="updateEHSTier()">
+</div>
+<h3 style="color: var(--color-dk1); font-size: 16px; font-weight: 700; margin-bottom: 16px;">EHS Process Overview — 5 Steps</h3>
+<div class="stepper">
+<div class="step">
+<div class="step-number completed">✓</div>
+<div class="step-content">
+<h4>All Deals with Site Activities → Follow Grid SPEAK4GE RAM</h4>
+<p>Mandatory for all projects with on-site execution.</p>
+</div>
+</div>
+<div class="step">
+<div class="step-number completed">✓</div>
+<div class="step-content">
+<h4>GA EHS Team Involvement → Until mitigation measures identified</h4>
+<p>EHS team engaged throughout risk identification and mitigation.</p>
+</div>
+</div>
+<div class="step">
+<div class="step-number completed">✓</div>
+<div class="step-content">
+<h4>Raise RAM → When any EHS ITO checklist criterion is not met to standard</h4>
+<p>Risk & Opportunity Register updated with EHS findings.</p>
+</div>
+</div>
+<div class="step">
+<div class="step-number completed">✓</div>
+<div class="step-content">
+<h4>High / Very High Risk Countries — Escalation Tiers</h4>
+<div class="substep">
+<p><strong>a)</strong> All deals → Identify risk in Risk & Opportunity Register (ROR)</p>
+<p><strong>b)</strong> Deals > $500k → Reviewed & approved by GA Regional EHS Manager <span id="ehs-tier2-indicator" style="display: none; color: var(--color-dk1); font-weight: 700;">(ACTIVE)</span></p>
+<p><strong>c)</strong> Deals qualifying for DD2 → Reviewed & approved by GA EHS Leader <span id="ehs-tier3-indicator" style="display: none; color: var(--color-dk1); font-weight: 700;">(ACTIVE)</span></p>
+</div>
+</div>
+</div>
+<div class="step">
+<div class="step-number completed">✓</div>
+<div class="step-content">
+<h4>Document all prep & mitigations in GA EHS ITO Checklist → Upload to SPEAK4GE Chatter</h4>
+<p>All EHS documentation centralized in SPEAK4GE for audit trail.</p>
+</div>
+</div>
+</div>
+<h3 style="color: var(--color-dk1); font-size: 16px; font-weight: 700; margin-bottom: 16px; margin-top: 24px;">EHS Tier Indicator (Escalation Level)</h3>
+<div class="tier-cards" id="ehs-tier-cards">
+<div class="tier-card" id="tier1-card">
+<h4>Tier 1</h4>
+<p>Any Deal with Site Presence</p>
+<p style="margin-top: 8px; font-size: 12px; font-weight: 600;">Complete GA EHS ITO Checklist Only</p>
+</div>
+<div class="tier-card" id="tier2-card">
+<h4>Tier 2</h4>
+<p>> $500k</p>
+<p style="margin-top: 8px; font-size: 12px; font-weight: 600;">GA EHS ITO Checklist + Involve Regional EHS Team</p>
+</div>
+<div class="tier-card" id="tier3-card">
+<h4>Tier 3</h4>
+<p>DD2 Qualifying</p>
+<p style="margin-top: 8px; font-size: 12px; font-weight: 600;">GA EHS ITO Checklist + GA EHS Leader Approval Required</p>
+</div>
+</div>
+<h3 style="color: var(--color-dk1); font-size: 16px; font-weight: 700; margin-bottom: 16px; margin-top: 24px;">High / Very High Risk Country Flag</h3>
+<div class="form-field" style="max-width: 300px; margin-bottom: 24px;">
+<label>Is the destination country High or Very High Risk?</label>
+<select id="high-risk-flag" onchange="updateHighRiskFlag()">
+<option value="">-- Select --</option>
+<option value="no">No</option>
+<option value="yes">Yes</option>
+</select>
+</div>
+<div id="high-risk-warning" class="warning-box" style="display: none;">
+<h4>⚠️ Extra Caution Required</h4>
+<p>At minimum, identify all EHS risks in the Risk & Opportunity Register (ROR). Escalate per deal size tier above.</p>
+</div>
+<div style="border: 1px solid var(--color-accent2); background-color: var(--color-lt1); border-radius: 4px; padding: 20px; margin-bottom: 24px;">
+<h3 style="color: var(--color-dk1); font-size: 16px; font-weight: 700; margin-bottom: 16px; margin-top: 0;">Country Risk Classification Reference</h3>
+<p style="font-size: 13px; color: var(--color-dk2); line-height: 1.6; margin-bottom: 12px;">The official GE Vernova Country Risk Ranking Table is maintained on BMS (Business Management System) and is updated regularly as country classifications change. Always refer to the live BMS document before submitting any deal involving potential high or very high risk country exposure. Do not rely on static lists.</p>
+<p style="font-size: 13px; color: var(--color-dk2); line-height: 1.6; margin-bottom: 12px;"><strong>To access the Country Risk Ranking Table:</strong> Navigate to BMS → Grid Solutions → ITO → EHS → Country Risk Ranking Table</p>
+<p style="font-size: 12px; color: var(--color-dk2); line-height: 1.6; margin: 0; font-style: italic;">If you do not have BMS access, contact your Regional EHS Manager or GA BL EHS Leader.</p>
+</div>
+<h3 style="color: var(--color-dk1); font-size: 16px; font-weight: 700; margin-bottom: 16px; margin-top: 24px;">EHS Key Principles</h3>
+<div class="principles-box">
+<h4>5 Core Principles</h4>
+<ol>
+<li><strong>Safety First:</strong> All project activities must prioritize personnel safety and environmental protection.</li>
+<li><strong>Risk Assessment:</strong> Comprehensive EHS risk identification and assessment at project initiation.</li>
+<li><strong>Mitigation Planning:</strong> Develop and implement mitigation measures for identified risks.</li>
+<li><strong>Compliance:</strong> Ensure adherence to local, regional, and GE Vernova EHS standards and regulations.</li>
+<li><strong>Documentation & Escalation:</strong> Maintain complete EHS documentation and escalate high-risk items per tier requirements.</li>
+</ol>
+</div>
+</div>
+
+<div class="tab-content" id="brownfield">
+<div class="tab-header">
+<h1>Brownfield Definition — PL DD2 Qualifier</h1>
+<div class="region-badge" id="region-badge-bf">Europe (ERCIS)</div>
+</div>
+<p class="tab-subtitle">Answer the 3 questions below to determine whether your Brownfield deal qualifies for PL DD2 Review (TKS) or is classified as a Standard deal. Reference: GEGS-GA_GQP_09_01 Rev 09 (Effective 31.07.2026)</p>
+<div style="background-color: var(--color-tint-3); border-left: 4px solid var(--color-dk1); border-radius: 4px; padding: 16px; margin-bottom: 24px; display: flex; gap: 12px;">
+<div style="font-size: 24px; flex-shrink: 0;">ℹ️</div>
+<div>
+<h4 style="color: var(--color-dk1); font-size: 14px; font-weight: 700; margin-bottom: 8px;">What is Brownfield?</h4>
+<p style="font-size: 13px; color: var(--color-dk2); line-height: 1.6; margin: 0;">A Brownfield deal involves working on or upgrading an existing, already-operational system — as opposed to a Greenfield deal which starts from scratch on a new installation. In the Grid Automation context, Brownfield typically means modifying, extending, or replacing components within a live substation or network environment where existing equipment, systems, and third-party integrations are already in place. This introduces additional complexity around site access, system interoperability, data collection, migration planning, and responsibility boundaries — all of which must be carefully assessed during the tendering stage. The Brownfield definition below determines whether your deal qualifies for a PL DD2 Review (TKS classification) or falls under the Standard category, and applies to all deals with a Selling Price above $500k.</p>
+</div>
+</div>
+<h3 style="color: var(--color-dk1); font-size: 16px; font-weight: 700; margin-bottom: 16px;">Interactive Qualifier</h3>
+<div class="wizard-question">
+<h4>Q1: Is this a TKS Direct Bid or TKS through EPC/Channel Partner?</h4>
+<div class="wizard-options">
+<div class="wizard-option">
+<input type="radio" name="q1" value="tks-direct" id="q1-tks-direct">
+<label for="q1-tks-direct">Yes — TKS Direct</label>
+</div>
+<div class="wizard-option">
+<input type="radio" name="q1" value="tks-epc" id="q1-tks-epc">
+<label for="q1-tks-epc">Yes — TKS through EPC or Channel Partner</label>
+</div>
+<div class="wizard-option">
+<input type="radio" name="q1" value="no" id="q1-no">
+<label for="q1-no">No</label>
+</div>
+</div>
+</div>
+<div class="wizard-question">
+<h4>Q2: Does the scope include considerable Non-GE IED/System modification works exceeding 50% of Cost of Sales?</h4>
+<div class="wizard-options">
+<div class="wizard-option">
+<input type="radio" name="q2" value="yes-50" id="q2-yes-50">
+<label for="q2-yes-50">Yes (>50% COS)</label>
+</div>
+<div class="wizard-option">
+<input type="radio" name="q2" value="yes-cic" id="q2-yes-cic">
+<label for="q2-yes-cic">Yes — CIC content (but no Technical/Operational risk)</label>
+</div>
+<div class="wizard-option">
+<input type="radio" name="q2" value="no" id="q2-no">
+<label for="q2-no">No</label>
+</div>
+</div>
+</div>
+<div class="wizard-question">
+<h4>Q3: Is the work based on GE installed base standard modifications, standard engineered solutions, or loose products supply per established DOR?</h4>
+<div class="wizard-options">
+<div class="wizard-option">
+<input type="radio" name="q3" value="ge-installed" id="q3-ge-installed">
+<label for="q3-ge-installed">Yes — GE Installed Base Standard Works</label>
+</div>
+<div class="wizard-option">
+<input type="radio" name="q3" value="standard-eng" id="q3-standard-eng">
+<label for="q3-standard-eng">Yes — Standard Engineered Solution (per DOR)</label>
+</div>
+<div class="wizard-option">
+<input type="radio" name="q3" value="loose-products" id="q3-loose-products">
+<label for="q3-loose-products">Yes — Loose Products Supply (per DOR)</label>
+</div>
+<div class="wizard-option">
+<input type="radio" name="q3" value="cic-frame" id="q3-cic-frame">
+<label for="q3-cic-frame">Yes — CIC Infinera/Nokia/OTN/Huawei (frame agreement, no tech risk)</label>
+</div>
+<div class="wizard-option">
+<input type="radio" name="q3" value="no" id="q3-no">
+<label for="q3-no">No</label>
+</div>
+</div>
+</div>
+<button class="btn-primary" onclick="determineBrownfieldClassification()">Determine Classification</button>
+<div id="brownfield-result" style="display: none; margin-top: 24px;"></div>
+<h3 style="color: var(--color-dk1); font-size: 16px; font-weight: 700; margin-bottom: 16px; margin-top: 24px;">Full Reference Section</h3>
+<div class="definition-panels">
+<div class="definition-panel tks">
+<h4>BROWNFIELD TKS (Qualifies for PL DD2)</h4>
+<ul>
+<li><strong>TKS Direct Bid:</strong> GE Vernova directly bids on TKS (Turnkey System) scope with full responsibility for system integration and delivery.</li>
+<li><strong>TKS through EPC/Channel Partner:</strong> GE Vernova supplies equipment/software as part of an EPC or channel partner's TKS delivery.</li>
+<li><strong>Non-GE Modifications >50% COS:</strong> Scope includes considerable modifications to non-GE IEDs or systems exceeding 50% of Cost of Sales.</li>
+<li><strong>Refurbishment of Competitor/Own Installed Base (DCS System Replacement):</strong> Requires Site Survey + COE Validation (JIRA). Classified as a Technical Risk trigger.</li>
+<li><strong>Refurbishment Scope (Execution Risk):</strong> Requires SME cost validation + Site survey data. If survey not available, sign off by Region Operation Leader is required.</li>
+</ul>
+</div>
+<div class="definition-panel standard">
+<h4>BROWNFIELD STANDARD (Does NOT Qualify for PL DD2)</h4>
+<ul>
+<li><strong>GE Installed Base Standard Works:</strong> Modifications to existing GE systems using established, proven procedures.</li>
+<li><strong>Standard Engineered Solution (per DOR):</strong> Engineered solutions based on Design of Record (DOR) with no novel technical elements.</li>
+<li><strong>Loose Products Supply (per DOR):</strong> Supply of individual products/components per established DOR without system integration complexity.</li>
+<li><strong>CIC Frame Agreement (no tech risk):</strong> Supply of CIC equipment (Infinera, Nokia, OTN, Huawei) under frame agreement with no technical or operational risk.</li>
+<li><strong>Standard Modifications:</strong> Routine modifications with no novel technical complexity or execution risk.</li>
+</ul>
+</div>
+</div>
+<div class="note-box" style="margin-top: 24px;">
+<strong>Important Note:</strong> Other criteria including Offshore/Wind/HVDC, APM, Technical Risks and respective proceedings remain intact. The above Brownfield definitions apply only to deals with Selling Price > $500k.
+</div>
+</div>
+
+<div class="tab-content" id="saved-library">
+<div class="tab-header">
+<h1>Saved Checklist Library</h1>
+<div class="region-badge" id="region-badge-lib">Local Browser Storage</div>
+</div>
+<p class="tab-subtitle">All checklists saved here are stored locally in this browser only. Use "Export All" to create a shareable backup file, and "Import" to load checklists shared by others.</p>
+<div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+<button class="btn-primary" onclick="exportAllChecklists()">⬇ Export All</button>
+<button class="btn-secondary" onclick="document.getElementById('import-file-input').click()">⬆ Import</button>
+<input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importChecklists(event)">
+<button class="btn-secondary" onclick="clearAllSavedChecklists()" style="border-color:#F44336; color:#F44336;">🗑 Clear All Saved</button>
+</div>
+<table class="criteria-table" id="saved-library-table">
+<thead>
+<tr>
+<th>Opportunity Name</th>
+<th>Opportunity Number</th>
+<th>Region</th>
+<th>Date Saved</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="saved-library-tbody"></tbody>
+</table>
+<div id="saved-library-empty" style="display:none; text-align:center; padding: 40px; color: var(--color-accent4); font-size: 13px;">
+No saved checklists yet. Go to the Deal Review tab, fill out your criteria, and click "Save Checklist."
+</div>
+</div>
+
+</div>
+
+<div class="footer">
+<div>GE Vernova Grid Automation — ITO Deal Review Tool | Europe (ERCIS) & Sub-Saharan Africa (SSA) | For internal use only</div>
+<div class="footer-refs">Reference: ITO GS PO 001 Policy 5.0 | GEGS-GA_GQP_09_01 Rev 09 (Effective 31.07.2026) Proposals Approval Procedure</div>
+</div>
+
+<div id="print-slide" style="display:none; font-family:'Inter',sans-serif; color:#000; background:#fff; padding:24px 32px; height:auto; overflow:visible;">
+<div id="ps-header" style="margin-bottom:32px; border-bottom: 1px solid #000; padding-bottom:16px;">
+<div id="ps-project-name" style="font-size:20px; font-weight:700; margin-bottom:12px;"></div>
+<div id="ps-review-date" style="font-size:20px; font-weight:700;"></div>
+</div>
+<div style="display:grid; grid-template-columns:55% 45%; gap:40px; page-break-inside: avoid;">
+<div>
+<div style="font-size:16px; font-weight:700; margin-bottom:12px; text-transform:uppercase; letter-spacing:0.05em;">Opportunity Checklist</div>
+<div id="ps-checklist" style="font-size:12px; line-height:1.8;"></div>
+</div>
+<div>
+<div style="font-size:16px; font-weight:700; margin-bottom:12px; text-transform:uppercase; letter-spacing:0.05em;">Required Actions & Outputs</div>
+<div id="ps-outputs" style="font-size:12px; line-height:1.8;"></div>
+</div>
+</div>
+<div style="margin-top:32px; padding-top:12px; border-top:1px solid #000; font-size:12px;">
+<span id="ps-opp-no"></span> &nbsp;|&nbsp; <span id="ps-region"></span> &nbsp;|&nbsp; Revision: <span id="ps-revision"></span>
+</div>
+</div>
+
+<script>
+let activeRegion = 'europe';
+
+let dealReviewCriteria = [
+{ id: 1, name: 'Opportunity Type', options: ['Greenfield', 'Brown Field', 'Refurbishment / Competitor Base Replacement', 'Offshore Wind / HVDC', 'GridBeats', 'Loose Products Supply', 'Blanket Agreement'] },
+{ id: 2, name: 'Estimated Price Level (SPEAK4GE)', options: ['<500k$', '500k$ – 2M$', '2M$ – 5M$', '>5M$'] },
+{ id: 3, name: 'W2W Contribution Margin (CM%)', options: ['CM ≥ 30%', 'CM 20–30%', 'CM < 20%'] },
+{ id: 4, name: 'Technical Risks', multiSelect: true, options: ['No Technical Risk', 'NPI / Solution without BOD5', 'Solution > 250 IEDs', 'New Architecture / FOAK (New Tech vs Design Center Library)', 'GA APM > 500K', 'HVDC (DC scope or integration with DC)', 'Cybersecurity – Non-Standard, Advanced, Patch Management', 'Use of 3rd Party System/Solution (not IED level) / New In-House Hybrid Solution', 'Non-Standard DSS', 'Refurbishment of Competitor/Own Installed Base (DCS Replacement)', 'Solution using Zenon HMI', 'Use of Huawei Products', 'DVM', 'Obsolete Software or Products', 'Potential Obsolescence Software (CISCO) – EOL Management', 'AAA', 'OFW'] },
+{ id: 5, name: 'Complex Tender', options: ['Not Applicable', 'Full Digital SS (Process Bus)', 'Integrated Protection & Control', 'Complex Multi-Vendor Integration', 'Turnkey with Site Installations'] },
+{ id: 6, name: 'First Of A Kind (FOAK)', multiSelect: true, options: ['Not Applicable', 'FOAK — New Product / Feature', 'FOAK — New Application', 'FOAK: New Tech for the team', 'FOAK: New Country (onshore works)', 'FOAK: New Customer / Existing customer not served for 5+ years'] },
+{ id: 7, name: 'Nuclear Application', options: ['No', 'Yes'] },
+{ id: 8, name: 'Involvment with High Risk Technologies/Entities (Huawei etc.)', options: ['No', 'Yes'] },
+{ id: 9, name: 'Solution using Zenon HMI', options: ['No', 'Yes'] },
+{ id: 10, name: 'RAM requiring L4 Approval (Excluding PAC)', options: ['No', 'Yes'] },
+{ id: 11, name: 'Execution Risk', multiSelect: true, options: ['No Execution Risk', 'Deals > $25M', 'Site Works (Installation, cabling, primary injection, working on primary yard)', 'Refurbishment Scope', 'Offshore Wind Farm', "Onshore Works outside bidding entity's country (permanent establishment & tax implications)", 'High Risk & Very High Risk Countries', 'Minor Civil Works – Site Adaptations (trenching, foundation)', 'Major Civil Works (Control Room building etc.)', 'Sourcing – Third Party >50%, Sole Supplier', 'Consortium'] }
+];
+
+const techRiskActions = {
+'NPI / Solution without BOD5': 'CoE/PMT/R&D Validation required at RFQ Stage (NPI without BOD5)',
+'Solution > 250 IEDs': 'System performance validation required — IED count exceeds standard threshold',
+'New Architecture / FOAK (New Tech vs Design Center Library)': 'COE Validation (JIRA) + R&D Review required for new architecture',
+'GA APM > 500K': 'APM Review Board sign-off required',
+'HVDC (DC scope or integration with DC)': 'HVDC Technical Review Board validation required',
+'Cybersecurity – Non-Standard, Advanced, Patch Management': 'Cybersecurity SME validation + non-standard patch management review required',
+'Use of 3rd Party System/Solution (not IED level) / New In-House Hybrid Solution': 'Integration compliance statement required from TAE',
+'Non-Standard DSS': 'DSS Technical Review required',
+'Refurbishment of Competitor/Own Installed Base (DCS Replacement)': 'Site Survey + COE Validation (JIRA) required — Technical Risk trigger',
+'Solution using Zenon HMI': 'Zenon Technical Derogation — JIRA workflow required',
+'Use of Huawei Products': 'CIC Smartsheet Approval Workflow — Huawei Required (ITO-GA-WI-001)',
+'DVM': 'COE Validation (JIRA) Required',
+'Obsolete Software or Products': 'Obsolescence Review + Mitigation Plan required',
+'Potential Obsolescence Software (CISCO) – EOL Management': 'EOL Management Plan required — CISCO obsolescence review',
+'AAA': 'COE Validation (JIRA) Required',
+'OFW': 'COE Validation (JIRA) Required'
+};
+
+const execRiskActions = {
+'Deals > $25M': 'Execution Review (ER) required + GA Leadership awareness',
+'Site Works (Installation, cabling, primary injection, working on primary yard)': 'SME Cost Validation + Site survey data required',
+'Refurbishment Scope': 'SME Cost Validation + Site survey data required (Region Operations Leader sign-off if no survey)',
+'Offshore Wind Farm': 'Execution Review (ER) + CQM + SME Cost Validation required',
+"Onshore Works outside bidding entity's country (permanent establishment & tax implications)": 'Tax/Legal review required — permanent establishment risk',
+'High Risk & Very High Risk Countries': 'EHS Leader review mandatory + Country Risk Ranking Table check',
+'Minor Civil Works – Site Adaptations (trenching, foundation)': 'SME Cost Validation + CQM required',
+'Major Civil Works (Control Room building etc.)': 'Execution Review (ER) + SME Cost Validation + CQM required',
+'Sourcing – Third Party >50%, Sole Supplier': 'Sourcing Risk Review required — sole supplier dependency',
+'Consortium': 'Execution Review (ER) + CQM + Consortium Agreement review required'
+};
+
+const foakActions = {
+'FOAK — New Product / Feature': 'CCR Workflow (NPI) required — new product/feature',
+'FOAK — New Application': 'CCR Workflow (NPI) required — new application',
+'FOAK: New Tech for the team': 'CCR Workflow (NPI) + SME Cost Validation required — new tech for team',
+'FOAK: New Country (onshore works)': 'CCR Workflow (NPI) + Tax/Legal/Regional Operations Leader review required',
+'FOAK: New Customer / Existing customer not served for 5+ years': 'CCR Workflow (NPI) + KYC/Credit review required'
+};
+
+document.querySelectorAll('.region-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+this.classList.add('active');
+activeRegion = this.dataset.region;
+updateAllRegionBadges();
+updateMarginInfo();
+});
+});
+
+function updateAllRegionBadges() {
+const regionText = activeRegion === 'europe' ? 'Europe (ERCIS)' : 'Sub-Saharan Africa (SSA)';
+document.getElementById('region-badge-dr').textContent = regionText;
+document.getElementById('region-badge-ehs').textContent = regionText;
+document.getElementById('region-badge-bf').textContent = regionText;
+}
+
+function updateMarginInfo() {
+const marginContainer = document.getElementById('margin-table-container');
+let tableHTML = '';
+if (activeRegion === 'europe') {
+tableHTML = `
+<table class="margin-table">
+<thead><tr><th>Product Type</th><th>Pre-Approved Minimum CM</th><th>Budget CM</th><th>Approval Escalation</th></tr></thead>
+<tbody>
+<tr><td>PAC Projects</td><td>35%</td><td>43%</td><td>GA Global Commercial Leader</td></tr>
+<tr><td>Services</td><td>40%</td><td>44%</td><td>GA Global Commercial Leader</td></tr>
+<tr><td>UCOM</td><td>30%</td><td>39%</td><td>GA Global Commercial Leader</td></tr>
+<tr><td>M&D Products</td><td>>30% (auto below 60%)</td><td>>60% auto</td><td>RGM L4</td></tr>
+<tr><td>PAC Loose Products</td><td>>35%</td><td>>60% auto</td><td>RGM L4</td></tr>
+<tr><td>CIC Products</td><td>>30%</td><td>>60% auto</td><td>GA Global Commercial Leader</td></tr>
+</tbody>
+</table>
+`;
+} else {
+tableHTML = `
+<table class="margin-table">
+<thead><tr><th>Product Type</th><th>Pre-Approved Minimum CM</th><th>Budget CM</th><th>Approval Escalation</th></tr></thead>
+<tbody>
+<tr><td>PAC Projects</td><td>29%</td><td>34%</td><td>GA Global Commercial Leader</td></tr>
+<tr><td>Services</td><td>30%</td><td>47%</td><td>GA Global Commercial Leader</td></tr>
+<tr><td>UCOM</td><td>30%</td><td>39%</td><td>GA Global Commercial Leader</td></tr>
+<tr><td>M&D Products</td><td>>30% (auto below 60%)</td><td>>60% auto</td><td>RGM L4</td></tr>
+<tr><td>PAC Loose Products</td><td>>35%</td><td>>60% auto</td><td>RGM L4</td></tr>
+<tr><td>CIC Products</td><td>>15%</td><td>>60% auto</td><td>GA Global Commercial Leader</td></tr>
+</tbody>
+</table>
+`;
+}
+marginContainer.innerHTML = tableHTML;
+}
+
+function switchTab(tabId) {
+document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+const clickedButton = document.querySelector(`[data-tab="${tabId}"]`);
+if (clickedButton) clickedButton.classList.add('active');
+const contentDiv = document.getElementById(tabId);
+if (contentDiv) contentDiv.classList.add('active');
+}
+
+function initializeDealReviewTable() {
+const tbody = document.getElementById('criteria-tbody');
+tbody.innerHTML = '';
+dealReviewCriteria.forEach(criterion => {
+const row = document.createElement('tr');
+let controlHTML = '';
+if (criterion.multiSelect) {
+controlHTML = `
+<div class="multiselect-group" data-criterion-id="${criterion.id}">
+${criterion.options.map((opt, i) => `
+<div class="multiselect-option">
+<input type="checkbox" id="crit-${criterion.id}-${i}" class="criteria-checkbox" data-criterion-id="${criterion.id}" value="${opt}" onchange="updateMultiSelectCount(${criterion.id})">
+<label for="crit-${criterion.id}-${i}">${opt}</label>
+</div>
+`).join('')}
+</div>
+<div class="multiselect-count" id="count-${criterion.id}">0 selected</div>
+`;
+} else {
+controlHTML = `
+<select class="criteria-select" data-criterion-id="${criterion.id}">
+<option value="">-- Select --</option>
+${criterion.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+</select>
+`;
+}
+row.innerHTML = `<td class="sr-no">${criterion.id}</td><td>${criterion.name}</td><td>${controlHTML}</td>`;
+tbody.appendChild(row);
+});
+}
+
+function updateMultiSelectCount(criterionId) {
+const checked = document.querySelectorAll(`.criteria-checkbox[data-criterion-id="${criterionId}"]:checked`);
+const counter = document.getElementById(`count-${criterionId}`);
+if (counter) counter.textContent = `${checked.length} selected`;
+}
+
+function generateDealReviewOutputs() {
+const selections = {};
+document.querySelectorAll('.criteria-select').forEach(select => {
+selections[select.dataset.criterionId] = select.value;
+});
+const multiSelections = {};
+document.querySelectorAll('.criteria-checkbox:checked').forEach(cb => {
+const id = cb.dataset.criterionId;
+if (!multiSelections[id]) multiSelections[id] = [];
+multiSelections[id].push(cb.value);
+});
+
+const price = selections['2'];
+const cm = selections['3'];
+const opp_type = selections['1'];
+const tech_risk = multiSelections['4'] || [];
+const complex_tender = selections['5'];
+const foak = multiSelections['6'] || [];
+const nuclear = selections['7'];
+const huawei = selections['8'];
+const zenon = selections['9'];
+const ram_l4 = selections['10'];
+const exec_risk = multiSelections['11'] || [];
+
+const hasExecRisk = exec_risk.length > 0 && !exec_risk.includes('No Execution Risk');
+const hasTechRisk = tech_risk.length > 0 && !tech_risk.includes('No Technical Risk');
+const hasFoak = foak.length > 0 && !foak.includes('Not Applicable');
+
+const erRequired = exec_risk.includes('Deals > $25M') || exec_risk.includes('Offshore Wind Farm') || exec_risk.includes('Major Civil Works (Control Room building etc.)') || exec_risk.includes('Consortium');
+const smeCostRequired = exec_risk.includes('Deals > $25M') || exec_risk.includes('Site Works (Installation, cabling, primary injection, working on primary yard)') || exec_risk.includes('Refurbishment Scope') || exec_risk.includes('Offshore Wind Farm') || exec_risk.includes('Minor Civil Works – Site Adaptations (trenching, foundation)') || exec_risk.includes('Major Civil Works (Control Room building etc.)') || tech_risk.includes('Cybersecurity – Non-Standard, Advanced, Patch Management') || foak.includes('FOAK: New Tech for the team');
+const cqmRequired = exec_risk.includes('Consortium') || exec_risk.includes('Site Works (Installation, cabling, primary injection, working on primary yard)') || exec_risk.includes('Minor Civil Works – Site Adaptations (trenching, foundation)') || exec_risk.includes('Major Civil Works (Control Room building etc.)') || exec_risk.includes('Offshore Wind Farm');
+
+let card1 = '<h3>Go/No-Go (DD0/DD1)</h3>';
+if (price === '<500k$') {
+card1 += '<p>No DD0/DD1 Required — Deal below threshold</p>';
+} else if (price === '500k$ – 2M$') {
+card1 += '<p>No mandatory DD0/DD1 — Region Deal Team awareness recommended</p>';
+} else if (price === '2M$ – 5M$' || price === '>5M$') {
+card1 += '<p>DD0/DD1 Required — Region Deal Team to be invited</p>';
+}
+if (price === '>5M$') card1 += '<p>GA Leadership review threshold reached</p>';
+
+let card2 = '';
+if (erRequired) {
+card2 = `<h3>Execution Review (ER)</h3>
+<p><strong>An Execution Review (ER) is required before proceeding to DD2</strong></p>
+<p style="font-size: 13px; margin-bottom: 12px;"><strong>Required Actions:</strong></p>
+<ul>
+<li class="checklist-item">CQM for partner/subcontractor qualification</li>
+<li class="checklist-item">SME cost validation</li>
+<li class="checklist-item">DOW (Design of Work)</li>
+<li class="checklist-item">ICB qualified PM & TL assigned and involved at ITO stage</li>
+<li class="checklist-item">Regional Operation Leader Sign Off</li>
+</ul>`;
+}
+
+let card3 = '<h3>Deal Review Actions (DD2)</h3>';
+let dd2_items = [];
+if (price === '>5M$' || nuclear === 'Yes' || huawei === 'Yes' || ram_l4 === 'Yes') dd2_items.push('Region DD2 to be initiated');
+if (opp_type === 'Brown Field' && price !== '<500k$') dd2_items.push('PL DD2 to be initiated');
+if (price === '>5M$') dd2_items.push('Review with GA Leadership to be initiated');
+if ((price === '2M$ – 5M$' || price === '>5M$') && cm === 'CM < 20%') dd2_items.push('GA BL Leader to be invited (Price >$2M & CM<20% threshold — verify against region rule)');
+if (hasExecRisk && (price !== '<500k$' || nuclear === 'Yes' || huawei === 'Yes')) dd2_items.push('Review with EHS Leader Mandatory for Execution within High/Very High Risk Countries');
+if (dd2_items.length === 0) {
+card3 += '<p>No DD2 actions required at this time.</p>';
+} else {
+card3 += '<ul>' + dd2_items.map(item => `<li class="checklist-item">${item}</li>`).join('') + '</ul>';
+}
+
+let card4 = '<h3>Workflow Initiation</h3>';
+let workflow_items = [];
+if (!hasFoak) {
+workflow_items.push('No NPI CCR Required');
+} else {
+foak.forEach(item => { if (foakActions[item]) workflow_items.push(foakActions[item]); });
+}
+if (huawei === 'No') workflow_items.push('No workflow required for CIC Approval');
+else if (huawei === 'Yes') workflow_items.push('CIC Smartsheet Approval Workflow — Huawei Required (ITO-GA-WI-001)');
+if (zenon === 'Yes') workflow_items.push('Zenon Technical Derogation — JIRA workflow to be launched and approved');
+if (workflow_items.length === 0) {
+card4 += '<p>No specific workflows required.</p>';
+} else {
+card4 += '<ul>' + workflow_items.map(item => `<li class="checklist-item">${item}</li>`).join('') + '</ul>';
+}
+
+let card5 = '<h3>Technical & EHS Validations</h3>';
+let tech_items = [];
+tech_risk.forEach(item => { if (techRiskActions[item]) tech_items.push(techRiskActions[item]); });
+exec_risk.forEach(item => { if (execRiskActions[item]) tech_items.push(execRiskActions[item]); });
+if (complex_tender !== 'Not Applicable' && complex_tender !== '') tech_items.push('CoE/PMT/R&D Validation required at RFQ Stage (Complex Tender: ' + complex_tender + ')');
+if (hasExecRisk && price === '500k$ – 2M$') tech_items.push('EHS Checklist Approval — GA Regional EHS Manager (Deal $500k–$2M)');
+if (hasExecRisk && (price === '2M$ – 5M$' || price === '>5M$')) tech_items.push('EHS Checklist Approval — GA BL EHS Leader (Deal >$2M)');
+if (hasExecRisk) tech_items.push('EHS Checklist to be filled and uploaded to SPEAK4GE Chatter');
+if (tech_items.length === 0) {
+card5 += '<p>No specific technical or EHS validations required at this time.</p>';
+} else {
+card5 += '<ul>' + tech_items.map(item => `<li class="checklist-item">${item}</li>`).join('') + '</ul>';
+}
+
+let card6 = '';
+if (smeCostRequired) {
+card6 = `<h3>SME Cost Validation Required</h3>
+<p>Validation of cost by the most expert in the organization who can validate the cost for execution (someone with ROE on such scope). If SME not available, costing to be signed off by the Regional Operations Leader.</p>`;
+}
+
+let card7 = '';
+if (cqmRequired) {
+card7 = `<h3>CQM Process Required</h3>
+<p>Contractor Qualification Management (CQM) is mandatory for consortium partners or subcontractors with site activity scope (Electromechanical works, cable installations, civil works).</p>`;
+}
+
+const outputsDiv = document.getElementById('deal-review-outputs');
+let outputHTML = `
+<div class="output-card">${card1}</div>
+${card2 ? `<div class="output-card">${card2}</div>` : ''}
+<div class="output-card">${card3}</div>
+<div class="output-card">${card4}</div>
+<div class="output-card">${card5}</div>
+${card6 ? `<div class="output-card">${card6}</div>` : ''}
+${card7 ? `<div class="output-card">${card7}</div>` : ''}
+`;
+outputsDiv.innerHTML = outputHTML;
+outputsDiv.style.display = 'grid';
+}
+
+function clearAllSelections() {
+const confirmClear = confirm('Are you sure you want to clear all selections in the Deal Review tab? This cannot be undone.');
+if (!confirmClear) return;
+document.getElementById('speak4ge-opp').value = '';
+document.getElementById('project-name').value = '';
+document.getElementById('review-date').value = '';
+document.getElementById('revision').value = '';
+document.querySelectorAll('.criteria-select').forEach(select => { select.value = ''; });
+document.querySelectorAll('.criteria-checkbox').forEach(cb => { cb.checked = false; });
+document.querySelectorAll('.multiselect-count').forEach(counter => { counter.textContent = '0 selected'; });
+const outputsDiv = document.getElementById('deal-review-outputs');
+outputsDiv.innerHTML = '';
+outputsDiv.style.display = 'none';
+}
+
+function updateEHSTier() {
+const dealValue = parseFloat(document.getElementById('deal-value').value) || 0;
+document.getElementById('tier1-card').classList.remove('active');
+document.getElementById('tier2-card').classList.remove('active');
+document.getElementById('tier3-card').classList.remove('active');
+document.getElementById('ehs-tier2-indicator').style.display = 'none';
+document.getElementById('ehs-tier3-indicator').style.display = 'none';
+if (dealValue < 500000) {
+document.getElementById('tier1-card').classList.add('active');
+} else if (dealValue >= 500000 && dealValue < 5000000) {
+document.getElementById('tier2-card').classList.add('active');
+document.getElementById('ehs-tier2-indicator').style.display = 'inline';
+} else if (dealValue >= 5000000) {
+document.getElementById('tier3-card').classList.add('active');
+document.getElementById('ehs-tier3-indicator').style.display = 'inline';
+}
+}
+
+function updateHighRiskFlag() {
+const flag = document.getElementById('high-risk-flag').value;
+document.getElementById('high-risk-warning').style.display = (flag === 'yes') ? 'block' : 'none';
+}
+
+function determineBrownfieldClassification() {
+const q1 = document.querySelector('input[name="q1"]:checked')?.value;
+const q2 = document.querySelector('input[name="q2"]:checked')?.value;
+const q3 = document.querySelector('input[name="q3"]:checked')?.value;
+let isTKS = false;
+let isStandard = false;
+if (q1 === 'tks-direct' || q1 === 'tks-epc' || q2 === 'yes-50') {
+isTKS = true;
+} else if (q1 === 'no' && q2 === 'no' && (q3 === 'ge-installed' || q3 === 'standard-eng' || q3 === 'loose-products' || q3 === 'cic-frame')) {
+isStandard = true;
+}
+const resultDiv = document.getElementById('brownfield-result');
+let resultHTML = '';
+if (isTKS) {
+resultHTML = `<div class="result-card brownfield-tks"><h3>Result: BROWNFIELD TKS — PL DD2 REQUIRED</h3><p>This deal qualifies as Brownfield TKS based on your responses. A PL DD2 review is mandatory before proceeding. Ensure all TKS criteria are documented and escalated to the appropriate approval authority.</p></div>`;
+} else if (isStandard) {
+resultHTML = `<div class="result-card brownfield-standard"><h3>Result: BROWNFIELD STANDARD — PL DD2 NOT REQUIRED</h3><p>This deal qualifies as Brownfield Standard based on your responses. A PL DD2 review is not required. However, other criteria including Technical Risks, Offshore/Wind/HVDC, and APM proceedings remain applicable.</p></div>`;
+} else {
+resultHTML = `<div class="result-card" style="border-left-color: var(--color-accent4);"><h3>Result: Classification Unclear</h3><p>Please review your answers. The responses do not clearly indicate either Brownfield TKS or Brownfield Standard classification. Ensure all questions are answered accurately.</p></div>`;
+}
+resultDiv.innerHTML = resultHTML;
+resultDiv.style.display = 'block';
+}
+
+function downloadSummary() {
+const oppNumber = document.getElementById('speak4ge-opp').value || 'N/A';
+const projectName = document.getElementById('project-name').value || 'N/A';
+let rawDate = document.getElementById('review-date').value;
+let reviewDate = 'N/A';
+if (rawDate) {
+const [year, month, day] = rawDate.split('-');
+reviewDate = `${day}/${month}/${year}`;
+}
+const revision = document.getElementById('revision').value || 'N/A';
+const regionText = activeRegion === 'europe' ? 'Europe (ERCIS)' : 'Sub-Saharan Africa (SSA)';
+
+document.getElementById('ps-project-name').textContent = oppNumber + ' — ' + projectName;
+document.getElementById('ps-review-date').textContent = 'Review Date: ' + reviewDate;
+document.getElementById('ps-opp-no').textContent = 'Opportunity: ' + oppNumber;
+document.getElementById('ps-region').textContent = regionText;
+document.getElementById('ps-revision').textContent = revision;
+
+const selections = {};
+document.querySelectorAll('.criteria-select').forEach(select => { selections[select.dataset.criterionId] = select.value; });
+document.querySelectorAll('.criteria-checkbox:checked').forEach(cb => {
+const id = cb.dataset.criterionId;
+if (!selections[id]) selections[id] = [];
+selections[id].push(cb.value);
+});
+
+let checklistHTML = '';
+dealReviewCriteria.forEach(criterion => {
+let val = selections[criterion.id];
+if (Array.isArray(val)) {
+val = val.length ? val.join(', ') : '—';
+} else {
+val = val || '—';
+}
+checklistHTML += `<div style="margin-bottom:6px; break-inside: avoid;"><span style="font-weight:600;">${criterion.id}. ${criterion.name}:</span> ${val}</div>`;
+});
+document.getElementById('ps-checklist').innerHTML = checklistHTML;
+
+const outputDiv = document.getElementById('deal-review-outputs');
+let outputsHTML = '';
+if (outputDiv && outputDiv.style.display !== 'none') {
+const cards = outputDiv.querySelectorAll('.output-card');
+cards.forEach(card => {
+const heading = card.querySelector('h3')?.textContent || '';
+outputsHTML += `<div style="font-weight:600; margin-top:12px; margin-bottom:4px; break-inside: avoid;">${heading}</div>`;
+const paras = card.querySelectorAll('p');
+paras.forEach(p => {
+const t = p.textContent.trim();
+if (t) outputsHTML += `<div style="margin-bottom:4px;">${t}</div>`;
+});
+const items = card.querySelectorAll('li');
+items.forEach(item => {
+outputsHTML += `<div style="margin-bottom:4px; padding-left:12px;">- ${item.textContent.trim()}</div>`;
+});
+});
+} else {
+outputsHTML = '<div style="color:#555;">No outputs generated yet. Click "Generate output" first.</div>';
+}
+document.getElementById('ps-outputs').innerHTML = outputsHTML;
+
+const printSlide = document.getElementById('print-slide');
+printSlide.style.position = 'absolute';
+printSlide.style.left = '0';
+printSlide.style.top = '0';
+printSlide.style.display = 'block';
+window.print();
+printSlide.style.display = 'none';
+}
+
+// ============================================
+// SAVED LIBRARY — localStorage PERSISTENCE
+// ============================================
+const STORAGE_KEY = 'ito_deal_review_saved_checklists';
+
+function getSavedChecklists() {
+const data = localStorage.getItem(STORAGE_KEY);
+return data ? JSON.parse(data) : [];
+}
+
+function setSavedChecklists(list) {
+localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+
+function saveCurrentChecklist() {
+const oppNumber = document.getElementById('speak4ge-opp').value || 'Untitled';
+const oppName = document.getElementById('project-name').value || 'Untitled Opportunity';
+const reviewDate = document.getElementById('review-date').value || '';
+const revision = document.getElementById('revision').value || '';
+
+const selections = {};
+document.querySelectorAll('.criteria-select').forEach(select => {
+selections[select.dataset.criterionId] = select.value;
+});
+
+document.querySelectorAll('.criteria-checkbox:checked').forEach(cb => {
+const id = cb.dataset.criterionId;
+if (!selections[id]) selections[id] = [];
+if (!Array.isArray(selections[id])) selections[id] = [];
+selections[id].push(cb.value);
+});
+
+const checklistEntry = {
+id: 'chk_' + Date.now(),
+oppNumber: oppNumber,
+oppName: oppName,
+reviewDate: reviewDate,
+revision: revision,
+region: activeRegion,
+savedAt: new Date().toISOString(),
+selections: selections
+};
+
+const existing = getSavedChecklists();
+existing.push(checklistEntry);
+setSavedChecklists(existing);
+
+alert('Checklist saved successfully! View it in the "Saved Library" tab.');
+renderSavedLibrary();
+}
+
+function renderSavedLibrary() {
+const tbody = document.getElementById('saved-library-tbody');
+const emptyMsg = document.getElementById('saved-library-empty');
+const table = document.getElementById('saved-library-table');
+const list = getSavedChecklists();
+
+if (list.length === 0) {
+table.style.display = 'none';
+emptyMsg.style.display = 'block';
+return;
+}
+
+table.style.display = 'table';
+emptyMsg.style.display = 'none';
+tbody.innerHTML = '';
+
+list.slice().reverse().forEach(entry => {
+const savedDate = new Date(entry.savedAt);
+const formattedDate = savedDate.toLocaleDateString('en-GB') + ' ' + savedDate.toLocaleTimeString('en-GB');
+const regionLabel = entry.region === 'europe' ? 'Europe (ERCIS)' : 'Sub-Saharan Africa (SSA)';
+
+const row = document.createElement('tr');
+row.innerHTML = `
+<td>${entry.oppName}</td>
+<td>${entry.oppNumber}</td>
+<td>${regionLabel}</td>
+<td>${formattedDate}</td>
+<td>
+<button class="btn-secondary" style="padding: 6px 10px; font-size: 12px; margin-right: 6px;" onclick="loadChecklist('${entry.id}')">Load</button>
+<button class="btn-secondary" style="padding: 6px 10px; font-size: 12px; border-color:#F44336; color:#F44336;" onclick="deleteChecklist('${entry.id}')">Delete</button>
+</td>
+`;
+tbody.appendChild(row);
+});
+}
+
+function loadChecklist(id) {
+const list = getSavedChecklists();
+const entry = list.find(c => c.id === id);
+if (!entry) {
+alert('Checklist not found.');
+return;
+}
+
+const confirmLoad = confirm(`Load "${entry.oppName}"? This will overwrite your current unsaved Deal Review inputs.`);
+if (!confirmLoad) return;
+
+document.getElementById('speak4ge-opp').value = entry.oppNumber === 'Untitled' ? '' : entry.oppNumber;
+document.getElementById('project-name').value = entry.oppName === 'Untitled Opportunity' ? '' : entry.oppName;
+document.getElementById('review-date').value = entry.reviewDate || '';
+document.getElementById('revision').value = entry.revision || '';
+
+if (entry.region && entry.region !== activeRegion) {
+activeRegion = entry.region;
+document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+document.querySelector(`.region-btn[data-region="${entry.region}"]`)?.classList.add('active');
+updateAllRegionBadges();
+updateMarginInfo();
+}
+
+document.querySelectorAll('.criteria-select').forEach(select => { select.value = ''; });
+document.querySelectorAll('.criteria-checkbox').forEach(cb => { cb.checked = false; });
+document.querySelectorAll('.multiselect-count').forEach(counter => { counter.textContent = '0 selected'; });
+
+Object.keys(entry.selections).forEach(critId => {
+const val = entry.selections[critId];
+if (Array.isArray(val)) {
+val.forEach(optionValue => {
+const checkbox = document.querySelector(`.criteria-checkbox[data-criterion-id="${critId}"][value="${CSS.escape(optionValue)}"]`);
+if (checkbox) checkbox.checked = true;
+});
+updateMultiSelectCount(critId);
+} else {
+const select = document.querySelector(`.criteria-select[data-criterion-id="${critId}"]`);
+if (select) select.value = val;
+}
+});
+
+switchTab('deal-review');
+
+const outputsDiv = document.getElementById('deal-review-outputs');
+outputsDiv.innerHTML = '';
+outputsDiv.style.display = 'none';
+
+alert('Checklist loaded. Click "Generate output" to see updated workflow results.');
+}
+
+function deleteChecklist(id) {
+const confirmDelete = confirm('Are you sure you want to delete this saved checklist? This cannot be undone.');
+if (!confirmDelete) return;
+
+let list = getSavedChecklists();
+list = list.filter(c => c.id !== id);
+setSavedChecklists(list);
+renderSavedLibrary();
+}
+
+function clearAllSavedChecklists() {
+const confirmClear = confirm('Are you sure you want to delete ALL saved checklists from this browser? This cannot be undone.');
+if (!confirmClear) return;
+
+setSavedChecklists([]);
+renderSavedLibrary();
+}
+
+function exportAllChecklists() {
+const list = getSavedChecklists();
+if (list.length === 0) {
+alert('No saved checklists to export yet.');
+return;
+}
+
+const dataStr = JSON.stringify(list, null, 2);
+const blob = new Blob([dataStr], { type: 'application/json' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url;
+a.download = `ITO_Deal_Review_Checklists_${new Date().toISOString().slice(0,10)}.json`;
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+URL.revokeObjectURL(url);
+}
+
+function importChecklists(event) {
+const file = event.target.files[0];
+if (!file) return;
+
+const reader = new FileReader();
+reader.onload = function(e) {
+try {
+const imported = JSON.parse(e.target.result);
+if (!Array.isArray(imported)) {
+alert('Invalid file format. Expected a JSON array of checklists.');
+return;
+}
+
+const existing = getSavedChecklists();
+const existingIds = new Set(existing.map(c => c.id));
+const newEntries = imported.filter(c => c.id && !existingIds.has(c.id));
+
+const merged = existing.concat(newEntries);
+setSavedChecklists(merged);
+renderSavedLibrary();
+
+alert(`Import complete. ${newEntries.length} new checklist(s) added. ${imported.length - newEntries.length} duplicate(s) skipped.`);
+} catch (err) {
+alert('Error reading file. Please make sure it is a valid exported JSON file.');
+}
+};
+reader.readAsText(file);
+event.target.value = '';
+}
+
+function init() {
+initializeDealReviewTable();
+updateMarginInfo();
+renderSavedLibrary();
+}
+
+init();
+</script>
+</body>
+</html>
