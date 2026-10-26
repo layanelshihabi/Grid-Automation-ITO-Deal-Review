@@ -242,7 +242,7 @@ Prepared by Layan Elshihabi &nbsp;|&nbsp; Reviewed by Ceyhun Cecen
 
 <div class="tab-content" id="ehs-ito">
 <div class="tab-header">
-<h1>Grid Auomation - EHS ITO Process</h1>
+<h1>Grid Automation - EHS ITO Process</h1>
 <div class="region-badge" id="region-badge-ehs">Europe (ERCIS)</div>
 </div>
 <p class="tab-subtitle">Enter your deal size and country risk level to determine which EHS approvals, documentation, and escalation steps apply to your deal. EHS workflow is mandatory for ALL opportunities involving at least one GE employee, contractor, agent or other person hired on behalf of GE who will be sent to the customer site.</p>
@@ -511,18 +511,22 @@ No saved checklists yet. Go to the Deal Review tab, fill out your criteria, and 
 <script>
 let activeRegion = 'europe';
 
+// Current checklist schema version (IDs 1-8, sequential)
+const SCHEMA_VERSION = 2;
+
+// Maps OLD criterion IDs (before renumbering) to NEW IDs.
+// Old IDs 5, 9 and 10 were deleted criteria, so they are intentionally absent.
+const LEGACY_ID_MAP = { '1': '1', '2': '2', '3': '3', '4': '4', '6': '5', '7': '6', '8': '7', '11': '8' };
+
 let dealReviewCriteria = [
-{ id: 1, name: 'Opportunity Type', options: ['Greenfield', 'Brown Field', 'Refurbishment / Competitor Base Replacement', 'Offshore Wind / HVDC', 'GridBeats', 'Loose Products Supply', 'Blanket Agreement'] },
+{ id: 1, name: 'Opportunity Type', options: ['Greenfield', 'Brown Field', 'Refurbishment / Competitor Base Replacement', 'GridBeats', 'Loose Products Supply', 'Blanket Agreement', 'Turnkey Project'] },
 { id: 2, name: 'Estimated Price Level (SPEAK4GE)', options: ['<500k$', '500k$ – 2M$', '2M$ – 5M$', '>5M$'] },
-{ id: 3, name: 'W2W Contribution Margin (CM%)', options: ['CM ≥ 30%', 'CM 20–30%', 'CM < 20%'] },
-{ id: 4, name: 'Technical Risks', multiSelect: true, options: ['No Technical Risk', 'NPI / Solution without BOD5', 'Solution > 250 IEDs', 'New Architecture / FOAK (New Tech vs Design Center Library)', 'GA APM > 500K', 'HVDC (DC scope or integration with DC)', 'Cybersecurity – Non-Standard, Advanced, Patch Management', 'Use of 3rd Party System/Solution (not IED level) / New In-House Hybrid Solution', 'Non-Standard DSS', 'Refurbishment of Competitor/Own Installed Base (DCS Replacement)', 'Solution using Zenon HMI', 'Use of Huawei Products', 'DVM', 'Obsolete Software or Products', 'Potential Obsolescence Software (CISCO) – EOL Management', 'AAA', 'OFW'] },
-{ id: 5, name: 'Complex Tender', options: ['Not Applicable', 'Full Digital SS (Process Bus)', 'Integrated Protection & Control', 'Complex Multi-Vendor Integration', 'Turnkey with Site Installations'] },
-{ id: 6, name: 'First Of A Kind (FOAK)', multiSelect: true, options: ['Not Applicable', 'FOAK — New Product / Feature', 'FOAK — New Application', 'FOAK: New Tech for the team', 'FOAK: New Country (onshore works)', 'FOAK: New Customer / Existing customer not served for 5+ years'] },
-{ id: 7, name: 'Nuclear Application', options: ['No', 'Yes'] },
-{ id: 8, name: 'Involvment with High Risk Technologies/Entities (Huawei etc.)', options: ['No', 'Yes'] },
-{ id: 9, name: 'Solution using Zenon HMI', options: ['No', 'Yes'] },
-{ id: 10, name: 'RAM requiring L4 Approval (Excluding PAC)', options: ['No', 'Yes'] },
-{ id: 11, name: 'Execution Risk', multiSelect: true, options: ['No Execution Risk', 'Deals > $25M', 'Site Works (Installation, cabling, primary injection, working on primary yard)', 'Refurbishment Scope', 'Offshore Wind Farm', "Onshore Works outside bidding entity's country (permanent establishment & tax implications)", 'High Risk & Very High Risk Countries', 'Minor Civil Works – Site Adaptations (trenching, foundation)', 'Major Civil Works (Control Room building etc.)', 'Sourcing – Third Party >50%, Sole Supplier', 'Consortium'] }
+{ id: 3, name: 'Expected W2W Contribution Margin%', options: ['CM ≥ 40%', 'CM 30–40%', 'CM 20–30%', 'CM < 20%'] },
+{ id: 4, name: 'Technical Risks', multiSelect: true, options: ['No Technical Risk', 'NPI / Solution without BOD5', 'Solution > 250 IEDs', 'New Architecture / FOAK (New Tech vs Design Center Library)', 'GA APM > 500K', 'HVDC (DC scope or integration with DC)', 'Cybersecurity – Non-Standard, Advanced, Patch Management', 'Use of 3rd Party System/Solution (not IED level) / New In-House Hybrid Solution', 'Non-Standard DSS', 'Refurbishment of Competitor/Own Installed Base (DCS Replacement)', 'Solution using Zenon HMI', 'DVM', 'Obsolete Software or Products', 'Advanced Automation Applications'] },
+{ id: 5, name: 'First Of A Kind (FOAK)', multiSelect: true, options: ['Not Applicable', 'FOAK — New Product / Feature', 'FOAK — New Application', 'FOAK: New Tech for the team', 'FOAK: New Country (onshore works)', 'FOAK: New Customer / Existing customer not served for 5+ years'] },
+{ id: 6, name: 'Nuclear Application', options: ['No', 'Yes'] },
+{ id: 7, name: 'Involvement with High Risk Technologies/Entities (Huawei etc.)', options: ['No', 'Yes'] },
+{ id: 8, name: 'Execution Risk', multiSelect: true, options: ['No Execution Risk', 'Deals > $25M', 'Site Works (Installation, cabling, primary injection, working on primary yard)', 'Refurbishment Scope', 'Offshore Wind Farm', "Onshore Works outside bidding entity's country (permanent establishment & tax implications)", 'High Risk & Very High Risk Countries', 'Minor Civil Works – Site Adaptations (trenching, foundation)', 'Major Civil Works (Control Room building etc.)', 'Sourcing – Third Party >50%, Sole Supplier', 'Consortium'] }
 ];
 
 const techRiskActions = {
@@ -536,12 +540,9 @@ const techRiskActions = {
 'Non-Standard DSS': 'DSS Technical Review required',
 'Refurbishment of Competitor/Own Installed Base (DCS Replacement)': 'Site Survey + COE Validation (JIRA) required — Technical Risk trigger',
 'Solution using Zenon HMI': 'Zenon Technical Derogation — JIRA workflow required',
-'Use of Huawei Products': 'CIC Smartsheet Approval Workflow — Huawei Required (ITO-GA-WI-001)',
 'DVM': 'COE Validation (JIRA) Required',
 'Obsolete Software or Products': 'Obsolescence Review + Mitigation Plan required',
-'Potential Obsolescence Software (CISCO) – EOL Management': 'EOL Management Plan required — CISCO obsolescence review',
-'AAA': 'COE Validation (JIRA) Required',
-'OFW': 'COE Validation (JIRA) Required'
+'Advanced Automation Applications': 'COE Validation (JIRA) Required',
 };
 
 const execRiskActions = {
@@ -675,17 +676,15 @@ if (!multiSelections[id]) multiSelections[id] = [];
 multiSelections[id].push(cb.value);
 });
 
+// Criterion IDs: 1 Opp Type | 2 Price | 3 CM | 4 Tech Risk | 5 FOAK | 6 Nuclear | 7 High Risk Tech | 8 Execution Risk
+const opp_type = selections['1'];
 const price = selections['2'];
 const cm = selections['3'];
-const opp_type = selections['1'];
 const tech_risk = multiSelections['4'] || [];
-const complex_tender = selections['5'];
-const foak = multiSelections['6'] || [];
-const nuclear = selections['7'];
-const huawei = selections['8'];
-const zenon = selections['9'];
-const ram_l4 = selections['10'];
-const exec_risk = multiSelections['11'] || [];
+const foak = multiSelections['5'] || [];
+const nuclear = selections['6'];
+const huawei = selections['7'];
+const exec_risk = multiSelections['8'] || [];
 
 const hasExecRisk = exec_risk.length > 0 && !exec_risk.includes('No Execution Risk');
 const hasTechRisk = tech_risk.length > 0 && !tech_risk.includes('No Technical Risk');
@@ -721,7 +720,7 @@ card2 = `<h3>Execution Review (ER)</h3>
 
 let card3 = '<h3>Deal Review Actions (DD2)</h3>';
 let dd2_items = [];
-if (price === '>5M$' || nuclear === 'Yes' || huawei === 'Yes' || ram_l4 === 'Yes') dd2_items.push('Region DD2 to be initiated');
+if (price === '>5M$' || nuclear === 'Yes' || huawei === 'Yes') dd2_items.push('Region DD2 to be initiated');
 if (opp_type === 'Brown Field' && price !== '<500k$') dd2_items.push('PL DD2 to be initiated');
 if (price === '>5M$') dd2_items.push('Review with GA Leadership to be initiated');
 if ((price === '2M$ – 5M$' || price === '>5M$') && cm === 'CM < 20%') dd2_items.push('GA BL Leader to be invited (Price >$2M & CM<20% threshold — verify against region rule)');
@@ -741,7 +740,7 @@ foak.forEach(item => { if (foakActions[item]) workflow_items.push(foakActions[it
 }
 if (huawei === 'No') workflow_items.push('No workflow required for CIC Approval');
 else if (huawei === 'Yes') workflow_items.push('CIC Smartsheet Approval Workflow — Huawei Required (ITO-GA-WI-001)');
-if (zenon === 'Yes') workflow_items.push('Zenon Technical Derogation — JIRA workflow to be launched and approved');
+if (tech_risk.includes('Solution using Zenon HMI')) workflow_items.push('Zenon Technical Derogation — JIRA workflow to be launched and approved');
 if (workflow_items.length === 0) {
 card4 += '<p>No specific workflows required.</p>';
 } else {
@@ -752,7 +751,6 @@ let card5 = '<h3>Technical & EHS Validations</h3>';
 let tech_items = [];
 tech_risk.forEach(item => { if (techRiskActions[item]) tech_items.push(techRiskActions[item]); });
 exec_risk.forEach(item => { if (execRiskActions[item]) tech_items.push(execRiskActions[item]); });
-if (complex_tender !== 'Not Applicable' && complex_tender !== '') tech_items.push('CoE/PMT/R&D Validation required at RFQ Stage (Complex Tender: ' + complex_tender + ')');
 if (hasExecRisk && price === '500k$ – 2M$') tech_items.push('EHS Checklist Approval — GA Regional EHS Manager (Deal $500k–$2M)');
 if (hasExecRisk && (price === '2M$ – 5M$' || price === '>5M$')) tech_items.push('EHS Checklist Approval — GA BL EHS Leader (Deal >$2M)');
 if (hasExecRisk) tech_items.push('EHS Checklist to be filled and uploaded to SPEAK4GE Chatter');
@@ -953,6 +951,7 @@ selections[id].push(cb.value);
 
 const checklistEntry = {
 id: 'chk_' + Date.now(),
+schemaVersion: SCHEMA_VERSION,
 oppNumber: oppNumber,
 oppName: oppName,
 reviewDate: reviewDate,
@@ -1006,6 +1005,17 @@ tbody.appendChild(row);
 });
 }
 
+// Converts selections saved under the old ID numbering to the new 1-8 numbering
+function migrateSelections(entry) {
+if (entry.schemaVersion === SCHEMA_VERSION) return entry.selections || {};
+const migrated = {};
+Object.keys(entry.selections || {}).forEach(oldId => {
+const newId = LEGACY_ID_MAP[oldId];
+if (newId) migrated[newId] = entry.selections[oldId];
+});
+return migrated;
+}
+
 function loadChecklist(id) {
 const list = getSavedChecklists();
 const entry = list.find(c => c.id === id);
@@ -1034,8 +1044,10 @@ document.querySelectorAll('.criteria-select').forEach(select => { select.value =
 document.querySelectorAll('.criteria-checkbox').forEach(cb => { cb.checked = false; });
 document.querySelectorAll('.multiselect-count').forEach(counter => { counter.textContent = '0 selected'; });
 
-Object.keys(entry.selections).forEach(critId => {
-const val = entry.selections[critId];
+const selections = migrateSelections(entry);
+
+Object.keys(selections).forEach(critId => {
+const val = selections[critId];
 if (Array.isArray(val)) {
 val.forEach(optionValue => {
 const checkbox = document.querySelector(`.criteria-checkbox[data-criterion-id="${critId}"][value="${CSS.escape(optionValue)}"]`);
